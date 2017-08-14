@@ -1,0 +1,128 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <title>bing search</title>  
+    <style>  
+        body{background: #333;}  
+        #bg_div{  
+            position: relative;  
+            background-image: url("river.jpg");  
+            width:1228px;height:690px;  
+            margin:0 auto ;  
+        }  
+        #search_box{  
+            position: absolute;  
+            top:150px;  
+            left: 200px;  
+        }  
+        #logo{  
+            background-image: url("logo.png");  
+            height:53px;width: 107px;  
+            float: left;  
+            margin: -4px 18px 0 0;  
+        }  
+        #search_form{  
+            background-color: #fff;  
+            float: left;  
+            padding: 5px;  
+        }  
+        #search_input{  
+            height:29px;  
+            line-height: 29px;  
+            width: 350px;  
+            border: 0;  
+            outline: none;  
+            float: left;  
+        }  
+        #search_submit{  
+            background-image: url(search-button.png);  
+            width:29px;  
+            height:29px;  
+            border: 0;  
+        }  
+        #suggest{  
+            display: none;  
+            width:388px;  
+            background-color:#fff;  
+            position:absolute;  
+            border-width:1px;  
+            border-style:solid;  
+            border-color: #999;  
+            padding: 0;  
+            margin: 0;  
+        }  
+        #suggest_result{  
+            list-style: none;  
+            padding: 0;  
+            margin: 0;  
+        }  
+        #suggest_result li{  
+            padding:3px;line-height:25px;font-size: 14px;color: #777;  
+            cursor: pointer;  
+        }  
+        #suggest_result li:hover{  
+            background-color:#e5e5e5;;  
+        }  
+    </style>  
+</head>  
+<body>  
+  
+<div id="bg_div">  
+    <div id="search_box">  
+        <div id="logo"></div>  
+        <form  id="search_form" action="https://cn.bing.com/search" target="_blank">  
+            <input type="text" id="search_input" name="q">  
+            <input type="submit" id="search_submit" value="">  
+        </form>  
+    </div>  
+</div>  
+<div id="suggest">  
+    <ul id="suggest_result">  
+    </ul>  
+</div>  
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>  
+<script>  
+    jQuery(document).ready(function() {  
+        $("#search_input").bind('keyup', function () {  
+            var input = $(this);  
+            var inputText = input.val();  
+            var callback= function (data) {  
+                var d = data.AS.Results[0].Suggests;  
+                var html = "";  
+                for (var i = 0; i < d.length; i++) {  
+                    html += '<li>' + d[i].Txt + '</li>';  
+                }  
+                $("#suggest_result").html(html);  
+                $("#suggest").css({  
+                    top: $('#search_form').offset().top + $("#search_form").height() + 10,  
+                    left: $('#search_form').offset().left  
+                }).show();  
+            };  
+            $.ajax({  
+                type: "get",  
+                async: false,  
+                url: "http://api.bing.com/qsonhs.aspx?type=cb&cb=callback&q=" + inputText,  
+                dataType: "jsonp",  
+                jsonp: "callback",//传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(一般默认为:callback)  
+                jsonpCallback:"callback",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据  
+                success: function (data) {  
+                    callback(data);  
+                },  
+                error: function (data) {  
+                    console.log(data);  
+                }  
+            });  
+        });  
+        $(document).bind('click',function(){  
+           $('#suggest').hide();  
+        });  
+        $('#suggest').delegate('li','click', function () {  
+            var keyword=$(this).text();  
+           location.href='http://cn.bing.com/search?q='+keyword;  
+        });  
+    });  
+  
+</script>  
+</body>  
+</html> 
